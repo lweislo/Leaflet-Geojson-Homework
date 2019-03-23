@@ -33,7 +33,7 @@ function createMap(quakes) {
   }).addTo(myMap);
 }
 //Color the circles based on magnitude
-colors = ["#02ff20","#d8bc0d","#d86c0d","#e80000","#030068"]
+colors = ["#02ff20","#f4ff5e","#d86c0d","#e80000","#930065","#030068"]
 function chooseColor(magnitude) {
     if (magnitude < 3) {
       return colors[0]
@@ -41,14 +41,17 @@ function chooseColor(magnitude) {
     else if (magnitude >= 3 && magnitude <= 4){
       return colors[1]
     }
-    else if (magnitude > 4 && magnitude <= 6) {
+    else if (magnitude > 4 && magnitude <= 5) {
       return colors[2]
     }
-    else if (magnitude > 6 && magnitude <= 7) {
+    else if (magnitude > 5 && magnitude <= 6) {
       return colors[3]
     }
-    else if (magnitude > 7) {
+    else if (magnitude > 6 && magnitude <=7) {
       return colors[4]
+    }
+    else if (magnitude > 7) {
+      return colors[5]
     }
   }
 url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_month.geojson"
