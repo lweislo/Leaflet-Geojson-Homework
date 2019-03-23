@@ -1,27 +1,39 @@
-//Load a default map centered in Pacific Ocean
-var myMap = L.map("map", {
-  center: [-20, -128],
-  zoom: 2
-});
+function createMap(quakes) {
+  var streetmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+    maxZoom: 18,
+    id: "mapbox.streets",
+    accessToken: API_KEY
+  });
 
-var streetmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-  attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
-  maxZoom: 18,
-  id: "mapbox.streets",
-  accessToken: API_KEY
-});
-var darkmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-  attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
-  maxZoom: 18,
-  id: "mapbox.dark",
-  accessToken: API_KEY
-});
-var baseMaps = {
-  "Street Map": streetmap,
-  "Dark Map": darkmap
-};
+  var darkmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+    maxZoom: 18,
+    id: "mapbox.dark",
+    accessToken: API_KEY
+  });
+
+  var baseMaps = {
+    "Street Map": streetmap,
+    "Dark Map": darkmap
+  };
+
+  var overlayMaps = {
+    "Earthquakes": quakes
+  }
+//Load a default map centered in Pacific Ocean
+  var myMap = L.map("map", {
+    center: [-20, -128],
+    zoom: 2,
+    layers:[streetmap, quakes]
+  });
+
+  L.control.layers(baseMaps, overlayMaps, {
+    collapsed: false
+  }).addTo(myMap);
+}
 //Color the circles based on magnitude
-colors = ["#d8bc0d","#d86c0d","#e80000","#820000","#450051"]
+colors = ["#02ff20","#d8bc0d","#d86c0d","#e80000","#030068"]
 function chooseColor(magnitude) {
     if (magnitude < 3) {
       return colors[0]
@@ -41,24 +53,27 @@ function chooseColor(magnitude) {
   }
 url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_month.geojson"
 // Grabbing our GeoJSON data..
-d3.json(url, function(data) {
+d3.json(url, quakeMarkers);
+
+function quakeMarkers(data) {
 
   var quakes = new L.geoJson(data, {
     style: function(feature) {
       var magnitude = +feature.properties.mag;
-      var depth = 1/Math.log10(+feature.geometry.coordinates[2]);
-      if (depth < 0.1){
-        depth = 0.2
+      var depth = +feature.geometry.coordinates[2];
+      var fill = 0;
+      if (depth <= 10){
+        fill = 0.9
       }
-      else if (depth > 0.8) {
-        depth = 0.9
+      else if (depth > 10) {
+        fill = 0.7
       }
       return {
         color: "#fff",
         weight: 0.2,
-        fillOpacity: depth,
+        fillOpacity: fill,
         fillColor: chooseColor(magnitude),
-        radius: (magnitude * magnitude)/4
+        radius: (magnitude * magnitude)/3
       };
     },
     pointToLayer: function(feature, latlng) {
@@ -69,7 +84,7 @@ d3.json(url, function(data) {
   var legend = L.control({ position: "bottomright" });
   legend.onAdd = function() {
     var div = L.DomUtil.create("div", "info legend");
-    var limits = [0, 3, 4, 6, 7,"+"];
+    var limits = ["<3", "3-4", "4-6","6-7","7+"];
     var colors = colors;
     var labels = [];
 
@@ -92,13 +107,8 @@ d3.json(url, function(data) {
 
   // Adding legend to the map
   // legend.addTo(myMap);
-  // quakes.addTo(myMap);
-  var overlayMaps = {
-    "Earthquakes": quakes
-  }
+  createMap(quakes);
 
-  L.control.layers(baseMaps, overlayMaps, {
-    collapsed: false
-  }).addTo(myMap);
+  // Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
 
-});
+};
