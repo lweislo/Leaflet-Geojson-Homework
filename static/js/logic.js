@@ -33,27 +33,6 @@ function createMap(quakes) {
   }).addTo(myMap);
 
 //Add the legend
-var legend = L.control({
-  position: "bottomright"
-});
-
-// // When the layer control is added, insert a div with the class of "legend"
-// legend.onAdd = function(myMap) {
-//   var div = L.DomUtil.create("div", "legend");
-//   grades = ['1', '2', '3', '4', '5', '6', '7', '8'],
-//   labels = [];
-//   // loop magnitudes and label with a colored square for each interval
-//   for (var i = 0; i < grades.length; i++) {
-//       div.innerHTML +=
-//           '<i style="background:' + chooseColor(grades[i] + 1) + '"></i> ' +
-//           grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-//           }
-//
-// return div;
-// console.log(div);
-// };
-// // Add the info legend to the map
-// legend.addTo(myMap);
 var legend = L.control({ position: "bottomright" });
   legend.onAdd = function() {
     var div = L.DomUtil.create("div", "info legend");
@@ -77,6 +56,17 @@ var legend = L.control({ position: "bottomright" });
 
   // Adding legend to the map
   legend.addTo(myMap);
+
+  d3.json('./static/data/PB2002_boundaries.json', faultLines);
+
+  function faultLines(data) {
+    var myStyle = {
+    "color": "#ff7800",
+    "weight": 2,
+    "opacity": 0.65
+    };
+    var myLayer = L.geoJSON(data, {style: myStyle}).addTo(myMap);
+    };
 }
 //Color the circles based on magnitude
 
