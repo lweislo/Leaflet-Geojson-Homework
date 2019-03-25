@@ -36,7 +36,7 @@ function createMap(quakes) {
 var legend = L.control({ position: "bottomright" });
   legend.onAdd = function() {
     var div = L.DomUtil.create("div", "info legend");
-    var limits = ['< 3','3', '4', '5', '6', '7', '> 7'];
+    var limits = ['1','2','3', '4', '5', '6', '7', '7+'];
     var labels = [];
     // Add min & max
     var legendInfo = "<h3>Magnitudes</h3>" +
@@ -47,7 +47,7 @@ var legend = L.control({ position: "bottomright" });
     div.innerHTML = legendInfo;
 
     limits.forEach(function(limit, index) {
-      labels.push("<li style=\"background-color: " + chooseColor(index) + "\"></li>");
+      labels.push("<li style=\"background-color: " + chooseColor(index + 1) + "\"></li>");
     });
 
     div.innerHTML += "<ul>" + labels.join("") + "</ul>";
@@ -65,7 +65,7 @@ var legend = L.control({ position: "bottomright" });
     "weight": 2,
     "opacity": 0.65
     };
-    var myLayer = L.geoJSON(data, {style: myStyle}).addTo(myMap);
+    var myLayer = L.geoJSON(data, {style: myStyle}).bindPopup("Plate Boundary").addTo(myMap);
     };
 }
 //Color the circles based on magnitude
